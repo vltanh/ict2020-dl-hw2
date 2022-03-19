@@ -1,3 +1,4 @@
+import csv
 from detectron2.data.catalog import DatasetCatalog, MetadataCatalog
 from detectron2.utils.visualizer import Visualizer
 from detectron2.engine import DefaultPredictor
@@ -18,7 +19,9 @@ import torch
 
 INPUT = sys.argv[1]
 MODEL = sys.argv[2]
-CLS_MODEL = 'runs/chicken-2022_03_19-02_46_41/best_metric_F1.pth'
+CLS_MODEL = sys.argv[3]
+
+DET_THRESHOLD = 0.9
 
 # DETECTION
 
@@ -70,6 +73,7 @@ tfs = tvtf.Compose([
                    std=[0.229, 0.224, 0.225]),
 ])
 
+out = []
 for fn in os.listdir(INPUT):
     _id = os.path.splitext(fn)[0]
 
@@ -90,20 +94,20 @@ for fn in os.listdir(INPUT):
     # CLASSIFY
     with torch.no_grad():
         for i, (bbox, score) in enumerate(zip(boxes, scores)):
-            patch = crop_object(im_pil, bbox)
-            patch = tfs(patch)
-            output = model(patch.unsqueeze(0).cuda())
-            probs = F.softmax(output, dim=1)
-            confs, preds = torch.max(probs, dim=1)
-            print(confs, preds)
-        input()
+            if score > DET_THRESHOLD:
+                patch = crop_object(im_pil, bbox)
+                patch = tfs(patch)
+                output = model(patch.unsqueeze(0).cuda())
+                probs = F.softmax(output, dim=1)
+                confs, preds = torch.max(probs, dim=1)
+                out.append([fn, preds.detach().cpu().tolist()[0]])
 
     # LOG
     os.makedirs(f'result/{_id}/good', exist_ok=True)
     os.makedirs(f'result/{_id}/bad', exist_ok=True)
     for i, (bbox, score) in enumerate(zip(boxes, scores)):
         patch = crop_object(im_pil, bbox)
-        if score > 0.9:
+        if score > DET_THRESHOLD:
             patch.save(f'result/{_id}/good/{i}.png')
         else:
             patch.save(f'result/{_id}/bad/{i}.png')
@@ -111,3 +115,8 @@ for fn in os.listdir(INPUT):
     v = Visualizer(im[:, :, ::-1])
     v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
     cv2.imwrite(f'result/{_id}/{_id}.png', v.get_image())
+
+with open('classification.txt', 'w') as f:
+    w = csv.writer(f)
+    w.writerow(['filename', 'prediction'])
+    w.writerows(out)

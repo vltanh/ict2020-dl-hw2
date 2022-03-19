@@ -12,12 +12,13 @@ model:
 optimizer:
     name: SGD
     args:
-        lr: 0.00000001
+        lr: 0.000001
         nesterov: True
-        momentum: 0.99
+        momentum: 0.9
 loss:
     name: CrossEntropyLoss
     args:
+        weight: [1, 5]
 metric:
     - name: Accuracy
       args:
