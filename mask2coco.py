@@ -1,7 +1,13 @@
 import glob
+import sys
+import os
+import json
+
 from tqdm import tqdm
 
 from src.create_annotations import *
+
+MASK_PATH = sys.argv[1]
 
 # Label ids of the dataset
 category_ids = {
@@ -86,19 +92,15 @@ def images_annotations_info(maskpath):
 if __name__ == "__main__":
     # Get the standard COCO JSON format
     coco_format = get_coco_json_format()
+    # Create category section
+    coco_format["categories"] = create_category_annotation(category_ids)
 
-    for keyword in ["train", "val"]:
-        mask_path = "dataset/{}_mask/".format(keyword)
+    # Create images and annotations sections
+    coco_format["images"], coco_format["annotations"], annotation_cnt = images_annotations_info(
+        MASK_PATH)
 
-        # Create category section
-        coco_format["categories"] = create_category_annotation(category_ids)
+    with open("list/train.json", "w") as outfile:
+        json.dump(coco_format, outfile)
 
-        # Create images and annotations sections
-        coco_format["images"], coco_format["annotations"], annotation_cnt = images_annotations_info(
-            mask_path)
-
-        with open("output/{}.json".format(keyword), "w") as outfile:
-            json.dump(coco_format, outfile)
-
-        print("Created %d annotations for images in folder: %s" %
-              (annotation_cnt, mask_path))
+    print("Created %d annotations for images in folder: %s" %
+          (annotation_cnt, MASK_PATH))

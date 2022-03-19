@@ -15,10 +15,17 @@ Email: anh.vu2020@ict.jvn.edu.vn
 ### **Setup**
 
 ```
+conda install shapely scikit-image numpy Pillow
 pip install -e detectron2_repo
 ```
 
 ### **Usage**
+
+To generate the COCO-formatted JSON
+```
+python mask2coco.py data/Dataset/train/mask
+```
+
 
 ```
 python train_detect.py det

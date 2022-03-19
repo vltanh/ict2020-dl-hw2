@@ -1,13 +1,7 @@
-# (pip install Pillow)
 from PIL import Image
-# (pip install numpy)
 import numpy as np
-# (pip install scikit-image)
 from skimage import measure
-# (pip install Shapely)
 from shapely.geometry import Polygon, MultiPolygon
-import os
-import json
 
 
 def create_sub_masks(mask_image, width, height):
