@@ -58,4 +58,4 @@ trainer:
     nepochs: 100
     val_step: 1
     log_step: 1
-    log_dir: runs
+    log_dir: weights/cls

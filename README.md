@@ -26,12 +26,12 @@ To generate the COCO-formatted JSON
 python mask2coco.py data/Dataset/train/mask
 ```
 
-
+To train the model
 ```
 python train_detect.py det
 ```
 
-If you want to train Instance Segmentation, then replace `det` with `ins`.
+If you want to train Instance Segmentation, then replace `det` with `seg`.
 
 ## **Classification**
 
@@ -51,12 +51,12 @@ python train_cls.py --config configs/chicken.yaml --gpus 0
 
 ## **Inference**
 
-To perform instance segmentation on the images in `data/Dataset/test/` using the weights stored in `output/ins-1000/model_final.pth`
+To perform instance segmentation on the images in `data/Dataset/test/` using the weights stored in `weights/seg/seg-1000/model_final.pth`
 ```
-python infer_seg.py data/Dataset/test/ output/ins-1000/model_final.pth
+python infer_seg.py data/Dataset/test/ weights/seg/seg-1000/model_final.pth
 ```
 
-To perform detection then classification on the images in `data/Dataset/test/` using the weights stored in `output/det-1000/model_final.pth` (detection) and `runs/chicken_ResNet50-2022_03_19-12_29_20/best_metric_F1.pth` (classification)
+To perform detection then classification on the images in `data/Dataset/test/` using the weights stored in `weights/det/det-1000/model_final.pth` (detection) and `weights/cls/chicken_ResNet50/best_metric_F1.pth` (classification)
 ```
-python infer_cls.py data/Dataset/test/ output/det-1000/model_final.pth runs/chicken_ResNet50-2022_03_19-12_29_20/best_metric_F1.pth
+python infer_cls.py data/Dataset/test/ weights/det/det-1000/model_final.pth weights/cls/chicken_ResNet50/best_metric_F1.pth
 ```
